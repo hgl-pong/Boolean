@@ -21,6 +21,7 @@ file(GLOB SOURCE_FILES
 )
 
 add_executable(${BOOLEAN_TOOL} ${SOURCE_FILES})
+find_package(Eigen3 REQUIRED)
 target_include_directories(${BOOLEAN_TOOL} PUBLIC ./include
     PRIVATE
     src/Boolean/
@@ -29,4 +30,5 @@ target_include_directories(${BOOLEAN_TOOL} PUBLIC ./include
 )
 
 target_link_libraries(${BOOLEAN_TOOL} PRIVATE 
+    Eigen3::Eigen
 )
