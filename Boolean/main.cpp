@@ -127,8 +127,16 @@ namespace delaunay {
 
     template <typename T>
     struct Circle {
+        using Node = Point<T>;
+
         T x, y, radius;
         Circle() = default;
+        bool IsPointInside(const Node& point)const 
+        {
+            Node diff = { point.x - x,point.y - y };
+            T dist = diff.x*diff.x+diff.y*diff.y;
+            return dist <= radius;
+        }
     };
 
     template <typename T>
@@ -210,9 +218,9 @@ namespace delaunay {
             std::vector<Triangle<T>> tmps;
             for (auto const& tri : d.triangles) {
                 /* Check if the point is inside the triangle circumcircle. */
-                const auto dist = (tri.circle.x - pt.x) * (tri.circle.x - pt.x) +
-                    (tri.circle.y - pt.y) * (tri.circle.y - pt.y);
-                if ((dist - tri.circle.radius) <= eps) {
+                //const auto dist = (tri.circle.x - pt.x) * (tri.circle.x - pt.x) +
+                //    (tri.circle.y - pt.y) * (tri.circle.y - pt.y);
+                if (tri.circle.IsPointInside(pt)){
                     edges.push_back(tri.e0);
                     edges.push_back(tri.e1);
                     edges.push_back(tri.e2);
@@ -222,7 +230,7 @@ namespace delaunay {
                 }
             }
 
-            /* Delete duplicate edges. */
+            ///* Delete duplicate edges. */
             std::vector<bool> remove(edges.size(), false);
             for (auto it1 = edges.begin(); it1 != edges.end(); ++it1) {
                 for (auto it2 = edges.begin(); it2 != edges.end(); ++it2) {
@@ -277,9 +285,43 @@ namespace delaunay {
 
 using namespace delaunay;
 
+namespace MathLib {
+    struct CircumCircle
+    {
+        HVector2 center;
+        HReal radius;
+        bool IsPointInside(const HVector2& point)
+        {
+            HVector2 diff = point - center;
+            HReal dist = diff.norm();
+            return dist < radius;
+        }
+    };
+    CircumCircle _CalculateCircumCircle(const HVector2& p0, const HVector2& p1, const HVector2& p2) {
+        HMatrix2 A_matrix;
+        HVector2 b_vector;
+
+        A_matrix(0, 0) = 2 * (p1.x() - p0.x());
+        A_matrix(0, 1) = 2 * (p1.y() - p0.y());
+        A_matrix(1, 0) = 2 * (p2.x() - p0.x());
+        A_matrix(1, 1) = 2 * (p2.y() - p0.y());
+
+        b_vector(0) = p1.squaredNorm() - p0.squaredNorm();
+        b_vector(1) = p2.squaredNorm() - p0.squaredNorm();
+
+        CircumCircle circle;
+        circle.center = A_matrix.colPivHouseholderQr().solve(b_vector);
+        circle.radius = (circle.center - p0).norm();
+        return circle;
+    }
+}
 namespace context {
+
     std::vector<MathLib::HVector2> points;
+    std::vector<delaunay::Point<float>> points2;
 } /* namespace context */
+
+
 
 void displayMe()
 {
@@ -288,8 +330,19 @@ void displayMe()
     glColor3f(1, 1, 1);
     glBegin(GL_POINTS);
     for (auto const& p : context::points) {
+
         glVertex2i(p.x(), p.y());
-    }
+
+    }        
+    glEnd();
+
+    glColor3f(0, 1, 0);
+    glBegin(GL_POINTS);
+    for (auto const& p : context::points2) {
+
+        glVertex2i(p.x, p.y);
+
+    }        
     glEnd();
 
     MathLib::Geometry::Triangulate::Delaunay2D delaunay;
@@ -297,20 +350,47 @@ void displayMe()
     const auto triangulation = delaunay.GetTriangles();
 
 
+
+    glColor3f(1, 1, 1);
     /* Draw lines. */
     glBegin(GL_LINES);
     for (int i = 0; i < triangulation.size() / 3; i++) {
         const auto& p1 = context::points[triangulation[3 * i]];
         const auto& p2 = context::points[triangulation[3 * i + 1]];
-        const auto& p3 = context::points[triangulation[3 * i + 2]];
+        const auto& p3 = context::points[triangulation[3 * i + 2]];  
+
         glVertex2i(p1[0], p1[1]);
         glVertex2i(p2[0], p2[1]);
         glVertex2i(p2[0], p2[1]);
         glVertex2i(p3[0], p3[1]);
         glVertex2i(p3[0], p3[1]);
-        glVertex2i(p1[0], p1[1]);
-    }
+        glVertex2i(p1[0], p1[1]); 
+}
     glEnd();
+
+    //const auto triangulation2 = delaunay::triangulate(context::points2);
+    //glColor3f(0, 1, 0);
+    //glBegin(GL_LINES);
+    //for (auto const& e : triangulation2.edges) {
+    //    glVertex2i(e.p0.x, e.p0.y);
+    //    glVertex2i(e.p1.x, e.p1.y);
+    //}
+    //glEnd();
+
+
+    /* Draw circumcircles. */
+ //   for (int i = 0; i < triangulation.size() / 3; i++) {
+ //       const auto& p1 = context::points[triangulation[3 * i]];
+ //       const auto& p2 = context::points[triangulation[3 * i + 1]];
+ //       const auto& p3 = context::points[triangulation[3 * i + 2]];
+ //       MathLib::CircumCircle circle = MathLib::_CalculateCircumCircle(p1, p2, p3);
+ //       glBegin(GL_LINE_LOOP);
+ //       for (int j = 0; j < 360; j++) {
+	//		const auto angle = j * 3.14159265358979323846 / 180;
+	//		glVertex2f(circle.center.x() + circle.radius * cos(angle), circle.center.y() + circle.radius * sin(angle));
+	//	}   
+ //       glEnd();
+	//}
     
     glutSwapBuffers();
 }
@@ -322,6 +402,7 @@ void mouse_callback(int button, int state, int x, int y)
     case GLUT_LEFT_BUTTON:
         if (state == GLUT_UP) {
             context::points.push_back({ x, y });
+            context::points2.push_back({ x, y });
         }
         break;
     case GLUT_MIDDLE_BUTTON:
@@ -339,6 +420,7 @@ void mouse_callback(int button, int state, int x, int y)
                 best_dist = dist;
             }
         }
+
         if (it_best != context::points.end()) {
             context::points.erase(it_best);
         }
