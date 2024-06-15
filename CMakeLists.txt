@@ -21,6 +21,8 @@ file(GLOB SOURCE_FILES
 )
 
 add_executable(${BOOLEAN_TOOL} ${SOURCE_FILES})
+add_definitions(-DUSE_OPENMP)
+
 find_package(Eigen3 REQUIRED)
 find_package(GLUT REQUIRED)
 target_include_directories(${BOOLEAN_TOOL} PUBLIC ./include
