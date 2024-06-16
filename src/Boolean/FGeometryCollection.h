@@ -4,6 +4,9 @@
 #include "FTriangulator.h"
 #include <unordered_map>
 #include <unordered_set>
+#include <Math/Math.h>
+#include <Math/Accelerate/Accelerator.h>
+#include <Math/GraphicUtils/MeshData.h>
 enum CollectionType
 {
 	DIFF,
@@ -43,5 +46,20 @@ private:
 	FBoundingBox m_Box;
 };
 
+namespace MathLib
+{
+	namespace Boolean3D
+	{
+		class BooleanCutter
+		{
+		public:
+			BooleanCutter(HAABBox3D& box, GraphicUtils::MeshData& meshData);
+			~BooleanCutter();
+
+			bool CalculateIntersect();
+		private:
+		};
+	}
+}
 
 #endif // FGEOMETRY_COLLECTION_H

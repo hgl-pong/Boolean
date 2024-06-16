@@ -163,15 +163,14 @@ void mouse_callback(int button, int state, int x, int y)
 int main(int argc, char** argv)
 {    
     profiler.Start();
-    for (int i = 0; i < 100; i++)
+    for (int i = 0; i < 1000; i++)
     {
-        int x= rand()%600;
+        int x = rand() % 600;
         int y = rand() % 600;
         context::points.push_back({ x, y });
-        //delaunay.InsertPoint({ x,y });
     }
 
-    delaunay.InsertPoints(context::points);
+    delaunay.SetPoints(context::points);
     profiler.End();
     printf("set points cost time:%.2f ms\n", profiler.GetFrameTime());
 
