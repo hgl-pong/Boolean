@@ -69,6 +69,7 @@ namespace context {
 } /* namespace context */
 MathLib::GraphicUtils::FrameProfiler profiler;
 MathLib::Geometry::Triangulate::Delaunay2D delaunay;
+uint32_t currPosIndex = 0;
 void displayMe()
 {
     /* Draw points. */
@@ -106,16 +107,28 @@ void displayMe()
 }
     glEnd();
 
+    auto neighbors= delaunay.Neighbors()[currPosIndex];
+    glColor3f(0, 1, 0);
+    glBegin(GL_LINES);
+    for (auto const & n:neighbors)
+    {
+        const auto& p1 = context::points[currPosIndex];
+        const auto& p2 = context::points[n];
+        glVertex2i(p1[0], p1[1]);
+        glVertex2i(p2[0], p2[1]);
+    }
+    glEnd();
+
     /* Draw circumcircles. */
  //   for (int i = 0; i < triangulation.size() / 3; i++) {
  //       const auto& p1 = context::points[triangulation[3 * i]];
  //       const auto& p2 = context::points[triangulation[3 * i + 1]];
  //       const auto& p3 = context::points[triangulation[3 * i + 2]];
- //       MathLib::CircumCircle circle = MathLib::_CalculateCircumCircle(p1, p2, p3);
+ //       MathLib::Geometry2D::CircumCircle circle(p1, p2, p3);
  //       glBegin(GL_LINE_LOOP);
  //       for (int j = 0; j < 360; j++) {
-	//		const auto angle = j * 3.14159265358979323846 / 180;
-	//		glVertex2f(circle.center.x() + circle.radius * cos(angle), circle.center.y() + circle.radius * sin(angle));
+	//		const auto angle = j * MathLib::H_PI / 180;
+	//		glVertex2f(circle.m_Center.x() + circle.m_Radius * cos(angle), circle.m_Center.y() + circle.m_Radius * sin(angle));
 	//	}   
  //       glEnd();
 	//}
@@ -137,23 +150,45 @@ void mouse_callback(int button, int state, int x, int y)
         }
         break;
     case GLUT_MIDDLE_BUTTON:
-        context::points.clear();
+    {
+        int best_dist = 100; /* min dist */
+        uint32_t i = 0;
+        for (; i < context::points.size(); i++) {
+            const auto& p = context::points[i];
+            const auto dist = (p.x() - x) * (p.x() - x) + (p.y() - y) * (p.y() - y);
+            if (dist < best_dist) {
+                best_dist = dist;
+                break;
+            }
+        }
+        if (i != context::points.size())
+            currPosIndex = i;
         break;
+    }
     case GLUT_RIGHT_BUTTON:
         /* Find closest point (with threshold). */
-        auto it = context::points.begin();
-        auto it_best = context::points.end();
         int best_dist = 100; /* min dist */
-        for (; it != context::points.end(); ++it) {
-            const auto dist = (it->x() - x) * (it->x() - x) + (it->y() - y) * (it->y() - y);
+        uint32_t i = 0;
+        for (; i< context::points.size(); i++) {
+            const auto& p= context::points[i];
+            const auto dist = (p.x() - x) * (p.x() - x) + (p.y() - y) * (p.y() - y);
             if (dist < best_dist) {
-                it_best = it;
                 best_dist = dist;
+                break;
             }
         }
 
-        if (it_best != context::points.end()) {
-            context::points.erase(it_best);
+        if (i != context::points.size()) {
+            context::points.erase(context::points.begin()  + i);
+            if (currPosIndex == i)
+            {
+				currPosIndex = 0;
+			}
+            profiler.Start();
+            delaunay.ErasePoint(i);
+            profiler.End();
+            printf("erase cost time:%.2f ms\n", profiler.GetFrameTime());
+
         }
         break;
     }
@@ -163,7 +198,7 @@ void mouse_callback(int button, int state, int x, int y)
 int main(int argc, char** argv)
 {    
     profiler.Start();
-    for (int i = 0; i < 1000; i++)
+    for (int i = 0; i < 100; i++)
     {
         int x = rand() % 600;
         int y = rand() % 600;
