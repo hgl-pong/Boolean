@@ -50,7 +50,6 @@
 //	}
 //}
 
-#include <Math/Geometry/VoronoiDiagram.h>
 #include <Math/Geometry/Triangulate/Delaunay3D.h>
 #include <Math/Geometry/Triangulate/Delaunay2D.h>
 #include <Math/GraphicUtils/FrameProfiler.h>
@@ -106,19 +105,21 @@ void displayMe()
         glVertex2i(p1[0], p1[1]); 
 }
     glEnd();
-
-    auto neighbors= delaunay.Neighbors()[currPosIndex];
-    glColor3f(0, 1, 0);
-    glBegin(GL_LINES);
-    for (auto const & n:neighbors)
     {
-        const auto& p1 = context::points[currPosIndex];
-        const auto& p2 = context::points[n];
-        glVertex2i(p1[0], p1[1]);
-        glVertex2i(p2[0], p2[1]);
-    }
-    glEnd();
+        PROFILE_FRAME("find points neighbors");
 
+        auto neighbors = delaunay.Neighbors()[currPosIndex];
+        glColor3f(0, 1, 0);
+        glBegin(GL_LINES);
+        for (auto const& n : neighbors)
+        {
+            const auto& p1 = context::points[currPosIndex];
+            const auto& p2 = context::points[n];
+            glVertex2i(p1[0], p1[1]);
+            glVertex2i(p2[0], p2[1]);
+        }
+        glEnd();
+    }
     /* Draw circumcircles. */
  //   for (int i = 0; i < triangulation.size() / 3; i++) {
  //       const auto& p1 = context::points[triangulation[3 * i]];
@@ -143,10 +144,8 @@ void mouse_callback(int button, int state, int x, int y)
     case GLUT_LEFT_BUTTON:
         if (state == GLUT_UP) {
             context::points.push_back({ x, y });
-            profiler.Start();
+            PROFILE_FRAME("insert point");
             delaunay.InsertPoint({ x,y });  
-            profiler.End();
-            printf("insert cost time:%.2f ms\n", profiler.GetFrameTime());
         }
         break;
     case GLUT_MIDDLE_BUTTON:
@@ -184,11 +183,8 @@ void mouse_callback(int button, int state, int x, int y)
             {
 				currPosIndex = 0;
 			}
-            profiler.Start();
+            PROFILE_FRAME("erase point");
             delaunay.ErasePoint(i);
-            profiler.End();
-            printf("erase cost time:%.2f ms\n", profiler.GetFrameTime());
-
         }
         break;
     }
@@ -197,18 +193,17 @@ void mouse_callback(int button, int state, int x, int y)
 
 int main(int argc, char** argv)
 {    
-    profiler.Start();
-    for (int i = 0; i < 100; i++)
     {
-        int x = rand() % 600;
-        int y = rand() % 600;
-        context::points.push_back({ x, y });
+        PROFILE_FRAME("set points");
+        for (int i = 0; i < 100; i++)
+        {
+            int x = rand() % 600;
+            int y = rand() % 600;
+            context::points.push_back({ x, y });
+        }
+
+        delaunay.SetPoints(context::points);
     }
-
-    delaunay.SetPoints(context::points);
-    profiler.End();
-    printf("set points cost time:%.2f ms\n", profiler.GetFrameTime());
-
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
     glutInitWindowSize(600, 600);
