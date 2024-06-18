@@ -7,6 +7,7 @@
 #include <Math/Math.h>
 #include <Math/Accelerate/Accelerator.h>
 #include <Math/GraphicUtils/MeshData.h>
+#include "BooleanTriangleMesh.h"
 enum CollectionType
 {
 	DIFF,
