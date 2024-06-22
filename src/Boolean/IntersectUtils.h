@@ -49,7 +49,7 @@ public:
 		int coplanar = 0;
 		edge = nullptr;
 		FVec3 posA, posB;
-		if (!tri_tri_intersection_test_3d(
+		if (!MathLib::tri_tri_intersection_test_3d(
 			(FFLOAT*)(&vBufferA[triangleA.v1].position),
 			(FFLOAT*)(&vBufferA[triangleA.v2].position),
 			(FFLOAT*)(&vBufferA[triangleA.v3].position),
