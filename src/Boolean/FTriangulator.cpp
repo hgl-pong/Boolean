@@ -4,6 +4,8 @@
 #include "earcut.hpp"
 #include <array>
 #include "IO.h"
+#include <Math/Geometry/Triangulate/EarClip2D.h>
+
 bool FTriangulator::Triangulating(FTriangle& triangle,std::vector<FVertex>&vBuffer, std::vector<FVertex>& points, std::unordered_map<FIndex, std::unordered_set<FIndex>>& neighborMapFrom3, std::vector<FTriangle>& triangles)
 {
     FTriangulator triangulator(triangle,vBuffer);
@@ -277,28 +279,31 @@ void FTriangulator::Triangulate()
         std::vector<std::vector<std::array<FFLOAT, 2>>> polygonAndHoles;
         std::vector<FIndex> pointIndices;
 
-        std::vector<std::array<FFLOAT, 2>> border;
+        std::vector<MathLib::HVector2> points;
+        MathLib::Geometry::Triangulate::EarClip2D<FIndex>::Polygon polygons;
+
+        polygons.push_back(MathLib::PolygonIndex<FIndex>());
         for (const auto& it : polygon) {
+            polygons[0].vertices.push_back(points.size());
             pointIndices.push_back(it);
-            const auto& v = m_points[it];
-            border.push_back(std::array<FFLOAT, 2> {v.X, v.Y});
+            points.push_back(MathLib::HVector2(m_points[it].X, m_points[it].Y));
         }
-        polygonAndHoles.push_back(border);
 
         auto findHoles = m_polygonHoles.find(polygonIndex);
         if (findHoles != m_polygonHoles.end()) {
             for (const auto& h : findHoles->second) {
-                std::vector<std::array<FFLOAT, 2>> hole;
+                polygons.push_back(MathLib::PolygonIndex<FIndex>());
                 for (const auto& it : m_innerPolygons[h]) {
-                    pointIndices.push_back(it);
                     const auto& v = m_points[it];
-                    hole.push_back(std::array<FFLOAT, 2> {v.X, v.Y});
+                    polygons[0].vertices.push_back(points.size());
+                    pointIndices.push_back(it);
+                    points.push_back(MathLib::HVector2(v.X, v.Y));
                 }
-                polygonAndHoles.push_back(hole);
             }
         }
 
-        std::vector<FIndex> indices = mapbox::earcut<FIndex>(polygonAndHoles);
+        std::vector<FIndex> indices = MathLib::Geometry::Triangulate::EarClip2D<FIndex>::Triangulate(points, polygons);
+
         m_triangles.reserve(indices.size() / 3);
         for (FIndex i = 0; i < indices.size(); i += 3) {
             m_triangles.push_back({
@@ -315,13 +320,15 @@ void FTriangulator::Triangulate()
         std::vector<std::vector<std::array<FFLOAT, 2>>> polygonAndHoles;
         std::vector<FIndex> pointIndices;
 
-        std::vector<std::array<FFLOAT, 2>> border;
+        std::vector<MathLib::HVector2> points;
+        MathLib::Geometry::Triangulate::EarClip2D<FIndex>::Polygon polygons;
+
+        polygons.push_back(MathLib::PolygonIndex<FIndex>());
         for (const auto& it : polygon) {
+            polygons[0].vertices.push_back(points.size());
             pointIndices.push_back(it);
-            const auto& v = m_points[it];
-            border.push_back(std::array<FFLOAT, 2> {v.X, v.Y});
+            points.push_back(MathLib::HVector2(m_points[it].X, m_points[it].Y));
         }
-        polygonAndHoles.push_back(border);
 
         auto childrenIt = m_innerChildrenMap.find(polygonIndex);
         if (childrenIt != m_innerChildrenMap.end()) {
@@ -336,17 +343,17 @@ void FTriangulator::Triangulate()
                 }
             }
             for (const auto& child : children) {
-                std::vector<std::array<FFLOAT, 2>> hole;
+                polygons.push_back(MathLib::PolygonIndex<FIndex>());
                 for (const auto& it : m_innerPolygons[child]) {
-                    pointIndices.push_back(it);
                     const auto& v = m_points[it];
-                    hole.push_back(std::array<FFLOAT, 2> {v.X, v.Y});
+                    polygons[0].vertices.push_back(points.size());
+                    pointIndices.push_back(it);
+                    points.push_back(MathLib::HVector2(v.X, v.Y));
                 }
-                polygonAndHoles.push_back(hole);
             }
         }
+        std::vector<FIndex> indices = MathLib::Geometry::Triangulate::EarClip2D<FIndex>::Triangulate(points, polygons);
 
-        std::vector<FIndex> indices = mapbox::earcut<FIndex>(polygonAndHoles);
         m_triangles.reserve(indices.size() / 3);
         for (FIndex i = 0; i < indices.size(); i += 3) {
             m_triangles.push_back({

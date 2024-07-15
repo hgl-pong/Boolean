@@ -6,7 +6,7 @@ namespace MathLib
 	class BooleanTriangleMesh
 	{
 	public:
-		BooleanTriangleMesh(const GraphicUtils::MeshData& meshData)
+		BooleanTriangleMesh(const GraphicUtils::MeshData32& meshData)
 			:m_TriMesh(meshData.m_Vertices,meshData.m_Indices)
 		{
 			m_Accelerator.SetType(AcceleratorType::eAABB);
@@ -15,7 +15,7 @@ namespace MathLib
 		}
 
 	private:
-		MeshTool::TriangleMesh m_TriMesh;
+		MeshTool::TriangleMesh32 m_TriMesh;
 		Accelerator3D m_Accelerator;
 	};
 }

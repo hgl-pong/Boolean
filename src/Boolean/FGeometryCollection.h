@@ -54,7 +54,7 @@ namespace MathLib
 		class BooleanCutter
 		{
 		public:
-			BooleanCutter(HAABBox3D& box, GraphicUtils::MeshData& meshData);
+			BooleanCutter(HAABBox3D& box, GraphicUtils::MeshData32& meshData);
 			~BooleanCutter();
 
 			bool CalculateIntersect();
