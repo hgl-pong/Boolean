@@ -1,10 +1,49 @@
 #include "FTriangulator.h"
 #include <queue>
 #include <iostream>
-#include "earcut.hpp"
 #include <array>
 #include "IO.h"
 #include <Math/Geometry/Triangulate/EarClip2D.h>
+
+using namespace MathLib;
+
+inline std::vector<FVec2> Project(std::vector<FVertex>polygon, FVec3& normal, FVec3& axis, FVec3& origin) {
+	std::vector<FVec2>result;
+
+	FVec3 perpendicularAxis = normal.Cross(axis);
+	for (auto& it:polygon) {
+		FVec3 direction = it.position - origin;
+		result.push_back(FVec2(direction.Dot(axis), direction.Dot(perpendicularAxis)));
+	}
+
+	return result;
+}
+
+inline std::vector<FVec2> Project(FVertex*polygon, FVec3& normal, FVec3& axis, FVec3& origin) {
+	std::vector<FVec2>result;
+
+	FVec3 perpendicularAxis = normal.Cross(axis);
+	for (int i=0; i < 3;i++) {
+		FVec3 direction = polygon[i].position - origin;
+		result.push_back(FVec2(direction.Dot(axis), direction.Dot(perpendicularAxis)));
+	}
+
+	return result;
+}
+
+inline std::vector<HVector2> Project(const std::vector<HVector3>& points,const Geometry::Plane& plane,const HVector3& axis)
+{
+    std::vector<HVector2>result;
+    const size_t pointCount=points.size();
+    result.resize(pointCount);
+    const HVector3 perpendicularAxis=plane.m_Normal.cross(axis);
+    for (size_t i=0;i<pointCount;++i) 
+    {
+        const HVector3& point=points[i];
+        result[i]=HVector2(point.dot(axis),point.dot(perpendicularAxis));
+    }
+    return result;
+}
 
 bool FTriangulator::Triangulating(FTriangle& triangle,std::vector<FVertex>&vBuffer, std::vector<FVertex>& points, std::unordered_map<FIndex, std::unordered_set<FIndex>>& neighborMapFrom3, std::vector<FTriangle>& triangles)
 {

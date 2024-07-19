@@ -11,7 +11,7 @@
 #include "FSiteGenerator.h"
 using namespace std;
 int main() {
-	string path = "..\\..\\Model\\";
+	string path = "Model\\";
 	string outputDir = path + "output.vtk";
 	string input0 = path + "bunny.obj";
 	string input1 = path + "sphere.obj";

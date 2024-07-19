@@ -38,31 +38,6 @@ private:
 	void Triangulate();
 };
 
-inline std::vector<FVec2> Project(std::vector<FVertex>polygon, FVec3& normal, FVec3& axis, FVec3& origin) {
-	std::vector<FVec2>result;
-
-	FVec3 perpendicularAxis = normal.Cross(axis);
-	for (auto& it:polygon) {
-		FVec3 direction = it.position - origin;
-		result.push_back(FVec2(direction.Dot(axis), direction.Dot(perpendicularAxis)));
-	}
-
-	return result;
-}
-
-inline std::vector<FVec2> Project(FVertex*polygon, FVec3& normal, FVec3& axis, FVec3& origin) {
-	std::vector<FVec2>result;
-
-	FVec3 perpendicularAxis = normal.Cross(axis);
-	for (int i=0; i < 3;i++) {
-		FVec3 direction = polygon[i].position - origin;
-		result.push_back(FVec2(direction.Dot(axis), direction.Dot(perpendicularAxis)));
-	}
-
-	return result;
-}
-
-
 #endif // FTRIANGULAR_H
 
 
