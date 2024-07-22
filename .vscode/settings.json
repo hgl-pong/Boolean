@@ -3,10 +3,10 @@
     "CMAKE_TOOLCHAIN_FILE": "${env.VCPKG_PATH}\\scripts\\buildsystems\\vcpkg.cmake"
   },
   "files.associations": {
+    "*.hlsl": "hlsl",
     "*.ush": "hlsl",
     "*.fx5": "hlsl",
     "*.h5": "hlsl",
-    "*.hlsl": "hlsl",
     "unordered_map": "cpp",
     "xstring": "cpp",
     "algorithm": "cpp",
@@ -100,7 +100,11 @@
     "typeindex": "cpp",
     "variant": "cpp",
     "core": "cpp",
-    "dense": "cpp"
+    "dense": "cpp",
+    "coroutine": "cpp",
+    "expected": "cpp",
+    "memory_resource": "cpp",
+    "valarray": "cpp"
   },
   "Codegeex.CompletionModel": "CodeGeeX Pro[Beta]"
 }

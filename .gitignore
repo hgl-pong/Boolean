@@ -8,3 +8,5 @@ build/
 *.ilk
 executable
 out/
+
+.cache/

@@ -10,15 +10,17 @@
 #include "FMeshCutter.h"
 #include "FSiteGenerator.h"
 using namespace std;
-int main() {
-	string path = "Model\\";
+int main()
+{
+	string path = "..\\..\\Model\\";
 	string outputDir = path + "output.vtk";
 	string input0 = path + "bunny.obj";
 	string input1 = path + "sphere.obj";
 	ifstream is;
 	FMeshData meshA;
 	is.open(input0);
-	if (!is.is_open()) {
+	if (!is.is_open())
+	{
 		cout << "fail to open the file" << endl;
 		return -1;
 	}
@@ -28,14 +30,16 @@ int main() {
 	clock_t start, end;
 
 	start = clock();
-	FAccelerator* accelerator = new FAccelerator(box, meshA, AcceleratorType::GRID);
-	end = clock();	printf("time:%.2f ms\n", (FFLOAT)(end - start));
+	FAccelerator *accelerator = new FAccelerator(box, meshA, AcceleratorType::GRID);
+	end = clock();
+	printf("time:%.2f ms\n", (FFLOAT)(end - start));
 
 	FMeshData out;
 	is.close();
 
 	is.open(input1);
-	if (!is.is_open()) {
+	if (!is.is_open())
+	{
 		cout << "fail to open the file" << endl;
 		return -1;
 	}
@@ -48,8 +52,8 @@ int main() {
 	if (writeVtk(outputDir, out.m_Vertices, out.m_Triangles))
 		printf("write success!-----------------\n");
 
-	//int nums[3] = { 10,100,300 };
-	//for (int j = 0; j < 3; j++) {
+	// int nums[3] = { 10,100,300 };
+	// for (int j = 0; j < 3; j++) {
 	//	string file = "dragon";
 	//	int num = nums[j];
 	//	string outputDir = file + "_" + to_string(num) + ".vtk";
@@ -69,7 +73,6 @@ int main() {
 	//	start = clock();
 	//	FAccelerator accelerator(box, meshA, AcceleratorType::GRID);
 	//	end = clock();	printf("time:%.2f ms\n", (FFLOAT)(end - start));
-
 
 	//	FMeshData out;
 	//	is.close();

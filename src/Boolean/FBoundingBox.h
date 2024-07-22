@@ -222,8 +222,8 @@ static FVec2 RemapTextureCoords(FVec2& texCoords)
 {
     float x = texCoords.X;
     float y = texCoords.Y;
-    // ½øÐÐÎÆÀí×ø±êµÄÖØÓ³Éä
-    // ÕâÀïÊ¹ÓÃÏßÐÔ²åÖµ½øÐÐÖØÓ³Éä£¬¿ÉÒÔ¸ù¾ÝÐèÒªÑ¡ÔñÆäËû·½·¨
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó³ï¿½ï¿½
+    // ï¿½ï¿½ï¿½ï¿½Ê¹ï¿½ï¿½ï¿½ï¿½ï¿½Ô²ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó³ï¿½ä£¬ï¿½ï¿½ï¿½Ô¸ï¿½ï¿½ï¿½ï¿½ï¿½ÒªÑ¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     texCoords.X = x * (1.0f - y) + y * x * y;
     texCoords.Y = y * (1.0f - x) + x * x * y;
     return texCoords;
@@ -269,7 +269,7 @@ static void CalculateUVs(FMeshData& meshdata,FBoundingBox&box,FVec3& surfaceNorm
 
     //std::vector<FVec2> texBuffer(meshdata.m_Triangles.size() * 3);
     //FVec3 P0 = meshdata.m_Vertices[0].position;
-    //FVec3 P1 = P0 + surfaceNormal;  // Ñ¡ÔñÒ»¸öµãºÍ·¨ÏòÁ¿×÷ÎªÍ¶Ó°Æ½Ãæ
+    //FVec3 P1 = P0 + surfaceNormal;  // Ñ¡ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½Í·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÎªÍ¶Ó°Æ½ï¿½ï¿½
     //std::vector<FVertex>vBuffer = meshdata.m_Vertices;
     //for (auto& Vertex : vBuffer)
     //{
